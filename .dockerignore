@@ -1,0 +1,61 @@
+# ===========================================================================
+# AdaData .dockerignore
+# ===========================================================================
+# Prevent sensitive or unnecessary files from being added to the Docker context
+# ===========================================================================
+
+# Keys and secrets — NEVER copy into image
+keys/
+cardano_policy/keys/
+**/keys/
+*.skey
+*.vkey
+*.addr
+
+# Local environment or temp data
+*.log
+*.tmp
+tmp/
+.cache/
+.env
+.env.*
+
+# Node databases or chain data (if any)
+db/
+immutable/
+ledger/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git and build artifacts
+.git/
+.gitignore
+.gitmodules
+Dockerfile.*~
+build/
+dist/
+__pycache__/
+*.pyc
+
+# Cardano binaries — keep your own local CLI versions out
+cardano-cli
+cardano-node
+*.bin
+*.exe
+*.deb
+*.tar.gz
+*.zip
+
+# Security: do not include any possible wallet or signing artifacts
+*.sign
+*.sig
+*.crt
+*.pem
+*.priv
+*.pub

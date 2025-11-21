@@ -1,0 +1,44 @@
+# ------------------------------------------------------------------------------
+# ADAdata .gitignore
+# Avoid committing keys, private policy data, and build artifacts
+# ------------------------------------------------------------------------------
+
+# Sensitive Cardano files
+cardano_policy/keys/*
+!cardano_policy/keys/.keep        # example placeholder if directory must exist
+
+# Optional: ignore generated token metadata or signed files if they’re large/temporary
+cardano_policy/*.json
+!cardano_policy/metadata.json     # keep the template definition if you need it tracked
+cardano_policy/*.txt
+!cardano_policy/description.txt
+!cardano_policy/display_name.txt
+
+# Ignore compiled or temp Docker output
+*.log
+*.tmp
+*.bak
+
+# Docker / build artifacts
+*.tar
+*.tar.gz
+*.img
+*.container
+*.pid
+
+# Node or Python caches (if you add any helper scripts)
+__pycache__/
+*.pyc
+node_modules/
+
+# Editor / OS clutter
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Optional local environment, wallets, or mnemonics
+*.mnemonic
+wallet.*
+*.prv
+*.skey
