@@ -22,7 +22,7 @@ The offline copy contains everything necessary to generate and sign metadata wit
 
     git clone https://github.com/simsara-org/adadata.git
     cd adadata
-    docker build -t adadata .
+    docker build --no-cache -t adadata .
     docker run --rm -v "$(pwd)":/work adadata
    
 
