@@ -42,4 +42,5 @@ Thumbs.db
 wallet.*
 *.prv
 *.skey
-run/
+cardano_policy/
+tmp
