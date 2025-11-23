@@ -1,6 +1,6 @@
 [![Docker](https://img.shields.io/badge/Docker-ready-blue)](https://www.docker.com/)
 [![License](https://img.shields.io/github/license/simsara-org/adadata)](LICENSE)
-# AdaData – Air-Gapped Token Metadata Toolkit <img src="./img/SSARA.png" align="right" width="120"/>    
+# AdaData – Air-Gapped Token Metadata Toolkit <img src="./img/SSARA.png" align="right" width="64"/>    
 
 
 A secure, offline-ready toolkit for creating and managing Cardano token metadata.
@@ -15,7 +15,7 @@ AdaData is a self-contained Docker environment for generating and signing Cardan
 - [Deterministic Builds](#deterministic-builds)
 - [Workflow Summary](#workflow-summary)
 - [Main Menu Interface](#main-menu-interface)
-+ [Example Terminal Dialogs](#example-terminal-dialogs)
+- [Example Terminal Dialogs](#example-terminal-dialogs)
 - [Outputs Directory Structure](#outputs-are-written-to)
 - [Dependencies (verified versions)](#dependencies-verified-versions)
 - [Alternative (No Docker)](#alternative-no-docker)
