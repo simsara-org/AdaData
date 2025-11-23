@@ -48,7 +48,7 @@ run_script() {
 while true; do
   clear
   echo "=========================="
-  echo "🚀 Cardano Token Utility  v${VERSION}"
+  echo "🚀 Adadata Token Utility  v${VERSION}"
   echo "=========================="
   echo
   echo "Choose an action:"
