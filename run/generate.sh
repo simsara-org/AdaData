@@ -201,12 +201,16 @@ prompt_metadata() {
                     if [ -f "$DEFAULT_LOGO" ]; then
                         echo "Using built‑in default logo."
                         encode_base64_nowrap "$DEFAULT_LOGO"
+                        echo "$DEFAULT_LOGO" > logo_path.txt
+                        echo "Logo path recorded to logo_path.txt"
                     else
                         echo "No default logo available; skipping."
                     fi
                     break
                 elif [ -f "$USER_LOGO" ]; then
                     encode_base64_nowrap "$USER_LOGO"
+                    echo "$USER_LOGO" > logo_path.txt
+                    echo "Logo path recorded to logo_path.txt"
                     echo "Logo base64 saved to $LOGO_BASE64_OUT"
                     break
                 else
@@ -384,73 +388,76 @@ sign_token_metadata_json() {
     DESCRIPTION=$(cat description.txt)
     URL=$(cat url.txt)
 
+    echo "Creating metadata for subject: $SUBJECT"
+    echo "Using policy script: $POLICY_SCRIPT"
+
+    # sanity check for required files
+    for f in "$POLICY_SCRIPT" "$POLICY_SKEY" keys/policy.id asset_name_hex.txt asset_name.txt display_name.txt description.txt url.txt; do
+        if [ ! -f "$f" ]; then
+            echo "Error: Missing required file: $f"
+            exit 1
+        fi
+    done
     # Prompt for registry metadata creation
     echo
     read -p "Do you want to create and SIGN a Cardano Token Registry metadata JSON (for submission to the Cardano Registry)? (Y/N): " create_signed
+
     case "${create_signed^^}" in
         Y)
-            # Step 1: create draft with token-metadata-creator
+            # Steps 1–6 (same as your code)
             token-metadata-creator entry --init "$SUBJECT"
-
-            # Step 2: add required fields
             token-metadata-creator entry "$SUBJECT" \
-            --name "$DISPLAY_NAME" \
-            --description "$DESCRIPTION" \
-            --policy scripts/policy.script \
-            --url "$URL"
+                --name "$DISPLAY_NAME" \
+                --description "$DESCRIPTION" \
+                --policy "$POLICY_SCRIPT" \
+                --url "$URL"
 
-            # Step 3: add logo if available
             if [ -f logo_base64.txt ]; then
-                # token-metadata-creator expects a PNG file, not base64:
-                # for registry submission you need the actual .png
-                echo
-                echo "🖼  Logo detected."
+                   DEFAULT_LOGO_PATH=$(cat logo_base64.txt)
+               elif [ -f logo_path.txt ]; then
+                   DEFAULT_LOGO_PATH=$(cat logo_path.txt)
+               elif [ -n "$LOGO_PATH" ]; then
+                   DEFAULT_LOGO_PATH="$LOGO_PATH"
+               else
+                   DEFAULT_LOGO_PATH=""
+               fi
 
-                # Attempt to remember the path if you stored it earlier
-                # e.g., maybe you had LOGO_PATH defined when creating metadata
-                while true; do
-                    read -p "Please provide path to your logo PNG file for registry (must match original!) [Press Enter = reuse previous]: " LOGO_PNG
-                    # Handle default Enter key
-                    if [ -z "$LOGO_PNG" ]; then
-                        if [ -n "$LOGO_PATH" ] && [ -f "$LOGO_PATH" ]; then
-                            LOGO_PNG="$LOGO_PATH"
-                            echo "Using previously detected logo: $LOGO_PNG"
-                        else
-                            echo "No previous logo path recorded; need a valid file path."
-                            continue
-                        fi
-                    fi
 
-                    if [ -f "$LOGO_PNG" ]; then
-                        token-metadata-creator entry "$SUBJECT" --logo "$LOGO_PNG"
-                        break
-                    else
-                        echo "File not found: $LOGO_PNG"
-                        echo "Please try again."
-                    fi
-                done
+            echo "🖼  Logo detected."
+            [ -n "$DEFAULT_LOGO_PATH" ] && echo "Found recorded logo path: $DEFAULT_LOGO_PATH"
+
+            while true; do
+                read -p "Please provide path to your logo PNG file for registry [Press Enter = use default]: " LOGO_PNG
+                LOGO_PNG="${LOGO_PNG:-$DEFAULT_LOGO_PATH}"
+
+                if [ -z "$LOGO_PNG" ]; then
+                    echo "No default logo path recorded; need a valid file path."
+                    continue
+                fi
+
+                if [ -f "$LOGO_PNG" ]; then
+                    echo "Using logo: $LOGO_PNG"
+                    token-metadata-creator entry "$SUBJECT" --logo "$LOGO_PNG"
+                    break
+                else
+                    echo "File not found: $LOGO_PNG"
+                    echo "Please try again."
+                fi
+            done
+
+            read -p "Enter ticker (short symbol, or leave blank): " TICKER
+            if [ -n "$TICKER" ]; then
+                token-metadata-creator entry "$SUBJECT" --ticker "$TICKER"
             fi
 
-            # Step 4: (optionally) add ticker and decimals
-            echo -n "Enter ticker (short symbol, or leave blank): "
-            read TICKER
-            if [ ! -z "$TICKER" ]; then
-              token-metadata-creator entry "$SUBJECT" --ticker "$TICKER"
-            fi
-
-            echo -n "Enter decimals (number of decimal places, or leave blank for 0): "
-            read DECIMALS
+            read -p "Enter decimals (number of decimal places, or leave blank for 0): " DECIMALS
             if [[ "$DECIMALS" =~ ^[0-9]+$ ]]; then
-              token-metadata-creator entry "$SUBJECT" --decimals "$DECIMALS"
+                token-metadata-creator entry "$SUBJECT" --decimals "$DECIMALS"
             fi
 
-            # Step 5: sign the registry metadata JSON
             token-metadata-creator entry "$SUBJECT" -a "$POLICY_SKEY"
-
-            # Step 6: finalize/validate
             token-metadata-creator entry "$SUBJECT" --finalize
 
-            # Move the result to a friendly file name
             OUT_JSON="${SUBJECT}.json"
             cp "$OUT_JSON" "signed_registry_metadata.json"
 
@@ -466,7 +473,8 @@ sign_token_metadata_json() {
             echo "Please answer Y or N."
             ;;
     esac
-}
+}   # <-- this closing brace was missing!
+
 # MAIN
 main() {
     check_dependencies
