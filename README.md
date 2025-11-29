@@ -268,7 +268,19 @@ The docker build step will download necessary binaries, compile the app, and pro
 ```bash
 docker run --rm -it -v "$(pwd)":/data -u $(id -u):$(id -g) adadata
 ```
+or
+```bash
+docker run --rm -it \
+  --user $(id -u):$(id -g) \
+  -v "$PWD":/app \
+  -v /media/pp/22f153d3-1f53-4f5a-8f01-b03ab3e179f4/pp/db/node.socket:/app/db/node.socket \
+  -e CARDANO_NODE_SOCKET_PATH=/app/db/node.socket \
+  adadata
+```
 
+```bash
+docker run --rm -it   --user $(id -u):$(id -g)   -v "$PWD":/app   -v /media/pp/22f153d3-1f53-4f5a-8f01-b03ab3e179f4/pp/db/node.socket:/app/db/node.socket   -e NETWORK="--testnet-magic=1097911063"   -e KEYS_DIR=/app/cardano_policy/keys   -e TX_DIR=/app/tx   -e PAYMENT_ADDR=$(cat cardano_policy/keys/payment.addr)   -e CARDANO_NODE_SOCKET_PATH=/app/db/node.socket   adadata
+```
 
 ## 4. (Optional) Customize the Logo
 

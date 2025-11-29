@@ -29,8 +29,7 @@ RUN curl -L https://github.com/cardano-foundation/cardano-wallet/releases/downlo
 # --------------------------
 # Overwrite with the latest official Cardano CLI and Node binaries
 # --------------------------
-
-ENV CARDANO_NODE_VERSION=10.11.0.0
+ENV CARDANO_NODE_VERSION=10.11.0.0    # <-- set to the latest release tag
 
 RUN curl -L https://github.com/input-output-hk/cardano-node/releases/download/${CARDANO_NODE_VERSION}/cardano-node-${CARDANO_NODE_VERSION}-linux.tar.gz \
     | tar -xz && \
@@ -60,33 +59,6 @@ RUN curl -L https://github.com/input-output-hk/offchain-metadata-tools/releases/
 # Copy project files and set permissions
 # --------------------------
 COPY . .
-
-
-
-
-#Mainnet
-#docker run --rm -it -e CARDANO_NETWORK=mainnet myimage bash
-# docker run --rm -it \
-#   --user $(id -u):$(id -g) \
-#   -v "$PWD":/app \
-#   -v /media/pp/22f153d3-1f53-4f5a-8f01-b03ab3e179f4/pp/db/node.socket:/app/db/node.socket \
-#   -e CARDANO_NETWORK=mainnet \
-#   -e KEYS_DIR=/app/cardano_policy/keys \
-#   -e TX_DIR=/app/tx \
-#   -e PAYMENT_ADDR="$(cat cardano_policy/keys/payment.addr)" \
-#   -e CARDANO_NODE_SOCKET_PATH=/app/db/node.socket \
-#   adadata
-
-#Testnet
-# docker run --rm -it \
-#   --user $(id -u):$(id -g) \
-#   -v "$PWD":/app \
-#   -v /media/pp/22f153d3-1f53-4f5a-8f01-b03ab3e179f4/pp/db/node.socket:/app/db/node.socket \
-#   -e KEYS_DIR=/app/cardano_policy/keys \
-#   -e TX_DIR=/app/tx \
-#   -e PAYMENT_ADDR="$(cat cardano_policy/keys/payment.addr)" \
-#   -e CARDANO_NODE_SOCKET_PATH=/app/db/node.socket \
-#   adadata
 
 RUN chmod +x entrypoint.sh && \
     if [ -d run ]; then chmod +x run/*.sh || true; fi && \

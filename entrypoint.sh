@@ -20,23 +20,35 @@
 #   Keep all output files offline; never commit keys to a repository.
 # ===========================================================================
 
-set -e  # fail on first error
-
-# Resolve the directory where this script itself lives
+set -e  # exit on first error
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 TARGET_SCRIPT="$SCRIPT_DIR/run/launch.sh"
 
 echo "🚀  Running entrypoint: $TARGET_SCRIPT"
 
-# Confirm that the target script exists and is executable
+# --------------------------
+# 1. Select network
+# --------------------------
+# Default = testnet, change with: -e CARDANO_NETWORK=mainnet
+if [ "$CARDANO_NETWORK" = "mainnet" ]; then
+    export NETWORK="--mainnet"
+    echo "[i] Using network: mainnet ($NETWORK)"
+else
+    # default to preprod/testnet magic
+    export NETWORK="--testnet-magic=1097911063"
+    echo "[i] Using network: testnet ($NETWORK)"
+fi
+
+# --------------------------
+# 2. Verify downstream script exists
+# --------------------------
 if [[ ! -x "$TARGET_SCRIPT" ]]; then
     echo "❌  Missing or non‑executable target: $TARGET_SCRIPT" >&2
-    echo "Make sure run/generate.sh exists and has +x permission." >&2
+    echo "Make sure run/launch.sh exists and has +x permission." >&2
     exit 1
 fi
 
-# Forward all arguments downstream
-"$TARGET_SCRIPT" "$@"
-
-echo "✅  Entrypoint complete."
+# --------------------------
+# 3. Execute downstream script, passing all arguments along
+# --------------------------
+exec "$TARGET_SCRIPT" "$@"
