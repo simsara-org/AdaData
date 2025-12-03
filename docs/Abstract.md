@@ -10,3 +10,17 @@
 | `asset_name.txt`, `asset_name_hex.txt`, `asset_id.txt` | Convenience files showing the asset name, its hex encoding, and the full asset ID (`policyID.assetNameHex`). |
 | `.json` files named like `62864ce17e9…53494d53.json` | Each of these is a draft or generated metadata file for a specific token under that policy. If you’ve run the generator multiple times, you’ll see one per attempt. |
 | `keys/wallet.mnemonic`, `keys/root.prv` | Your seed phrase and root private key — **these must stay offline and backed up securely.** |
+
+
+
+node
+
+sudo chown -R pp:pp /media/pp/22f153d3-1f53-4f5a-8f01-b03ab3e179f41/pp/db
+
+chmod -R u+rwX /media/pp/22f153d3-1f53-4f5a-8f01-b03ab3e179f41/pp/db
+
+cardano-node run \
+  --topology /home/pp/cardano-mainnet/mainnet-topology.json \
+  --database-path /media/pp/22f153d3-1f53-4f5a-8f01-b03ab3e179f41/pp/db \
+  --socket-path /media/pp/22f153d3-1f53-4f5a-8f01-b03ab3e179f41/pp/db/node.socket \
+  --config /home/pp/cardano-mainnet/mainnet-config.json

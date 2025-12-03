@@ -44,3 +44,5 @@ wallet.*
 *.skey
 cardano_policy/
 tmp
+tx/
+

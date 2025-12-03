@@ -224,7 +224,7 @@ echo "   Copy this file, together with ${TX_DIR}/mint.raw, to your air‑gapped 
 # (Optional) If you intend to sign and submit automatically (not air‑gapped)
 # add the following only when applicable
 sign_and_submit_tx \
-  ./txs/mint.draft \
-  ./txs/mint.signed \
-  ./cardano_policy/policy.skey \
-  ./wallet/payment.skey
+  ./tx/mint.raw \
+  ./tx/mint.signed \
+  ./cardano_policy/keys/policy.skey \
+  ./cardano_policy/keys/payment.skey

@@ -21,6 +21,7 @@
 # ===========================================================================
 
 set -e  # exit on first error
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_SCRIPT="$SCRIPT_DIR/run/launch.sh"
 

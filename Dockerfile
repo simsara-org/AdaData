@@ -17,27 +17,28 @@ RUN apt-get update && \
 WORKDIR /app
 
 # --------------------------
-# Install Cardano Wallet tools (includes wallet / bech32 / old cli)
+# Install Cardano Wallet tools
 # --------------------------
 ENV CARDANO_WALLET_VERSION=v2025-03-31
-
 RUN curl -L https://github.com/cardano-foundation/cardano-wallet/releases/download/${CARDANO_WALLET_VERSION}/cardano-wallet-${CARDANO_WALLET_VERSION}-linux64.tar.gz \
     | tar -xz && \
     mv cardano-wallet-${CARDANO_WALLET_VERSION}-linux64/* /usr/local/bin/ && \
     rm -rf cardano-wallet-${CARDANO_WALLET_VERSION}-linux64
 
 # --------------------------
-# Overwrite with the latest official Cardano CLI and Node binaries
+# Overwrite with latest official Node / CLI
 # --------------------------
-
-ENV CARDANO_NODE_VERSION=10.11.0.0
-
-RUN curl -L https://github.com/input-output-hk/cardano-node/releases/download/${CARDANO_NODE_VERSION}/cardano-node-${CARDANO_NODE_VERSION}-linux.tar.gz \
-    | tar -xz && \
-    mv cardano-node-${CARDANO_NODE_VERSION}-linux/cardano-cli /usr/local/bin/ && \
-    mv cardano-node-${CARDANO_NODE_VERSION}-linux/cardano-node /usr/local/bin/ && \
-    chmod +x /usr/local/bin/cardano-cli /usr/local/bin/cardano-node && \
-    rm -rf cardano-node-${CARDANO_NODE_VERSION}-linux
+# ARG CARDANO_NODE_VERSION=10.6.1
+#
+# RUN mkdir -p /tmp/cnode && cd /tmp/cnode && \
+#     curl -L \
+#       "https://github.com/IntersectMBO/cardano-node/releases/download/${CARDANO_NODE_VERSION}/cardano-node-${CARDANO_NODE_VERSION}-linux.tar.gz" \
+#       -o node.tar.gz && \
+#     tar -xzf node.tar.gz && \
+#     find . -type f -name 'cardano-cli' -exec mv {} /usr/local/bin/ \; && \
+#     find . -type f -name 'cardano-node' -exec mv {} /usr/local/bin/ \; && \
+#     chmod +x /usr/local/bin/cardano-cli /usr/local/bin/cardano-node && \
+#     cd / && rm -rf /tmp/cnode
 
 # --------------------------
 # Install Token Metadata Creator and Validator
@@ -61,8 +62,8 @@ RUN curl -L https://github.com/input-output-hk/offchain-metadata-tools/releases/
 # --------------------------
 COPY . .
 
-
-
+# *** critical line: ensure /app/db is a directory ***
+RUN rm -f /app/db && mkdir -p /app/db /app/tx /app/cardano_policy/keys
 
 #Mainnet
 #docker run --rm -it -e CARDANO_NETWORK=mainnet myimage bash
