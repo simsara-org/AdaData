@@ -65,17 +65,15 @@ COPY . .
 # *** critical line: ensure /app/db is a directory ***
 RUN rm -f /app/db && mkdir -p /app/db /app/tx /app/cardano_policy/keys
 
-#Mainnet
-#docker run --rm -it -e CARDANO_NETWORK=mainnet myimage bash
 # docker run --rm -it \
-#   --user $(id -u):$(id -g) \
+#   --user "$(id -u):$(id -g)" \
 #   -v "$PWD":/app \
-#   -v /media/pp/22f153d3-1f53-4f5a-8f01-b03ab3e179f4/pp/db/node.socket:/app/db/node.socket \
-#   -e CARDANO_NETWORK=mainnet \
+#   -v /media/pp/Elements/pp/db/node.socket:/tmp/node.socket \
+#   -e NETWORK="--mainnet" \
 #   -e KEYS_DIR=/app/cardano_policy/keys \
 #   -e TX_DIR=/app/tx \
 #   -e PAYMENT_ADDR="$(cat cardano_policy/keys/payment.addr)" \
-#   -e CARDANO_NODE_SOCKET_PATH=/app/db/node.socket \
+#   -e CARDANO_NODE_SOCKET_PATH=/tmp/node.socket \
 #   adadata
 
 #Testnet
