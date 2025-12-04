@@ -62,7 +62,7 @@ POLICY_ID=$(<cardano_policy/keys/policy.id)
 ASSET_NAME_HEX=$(<cardano_policy/asset_name_hex.txt)
 ASSET_NAME=$(<cardano_policy/asset_name.txt)
 ASSET="${POLICY_ID}.${ASSET_NAME_HEX}"
-AMOUNT=1
+read -rp "Enter amount to mint: " AMOUNT
 
 
 # --- TX input selection loop (improved) ---
@@ -134,7 +134,8 @@ choose_metadata_template "$POLICY_ID" "$ASSET_NAME" "${POLICY_DIR}/metadata.json
 
 # --- Build transaction ---
 # --- Parse registry.json and extract simple values --------------------
-registry_json="./cardano_policy/registry.json"
+#registry_json="./cardano_policy/registry.json"
+registry_json="./cardano_policy/signed_registry_metadata.json"
 
 # Defensive: make sure file exists
 if [[ ! -f "$registry_json" ]]; then

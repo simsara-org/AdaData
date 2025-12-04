@@ -7,7 +7,7 @@ create_mint_meta_from_registry() {
   local output_file="$3"
 
   mkdir -p "$(dirname "$output_file")"
-  local registry_json="./cardano_policy/registry.json"
+  local registry_json="./cardano_policy/signed_registry_metadata.json"
 
   if [[ -f "$registry_json" ]]; then
     local TOKEN_NAME TICKER DESCRIPTION LOGO_REF DECIMALS
@@ -17,14 +17,14 @@ create_mint_meta_from_registry() {
     LOGO_REF=$(jq -r '.logoSrc.value // empty' "$registry_json")
     DECIMALS=$(jq -r '.decimals.value // 0' "$registry_json")
 
-    echo "✅ Found registry.json – pre‑filling mint metadata:"
+    echo "✅ Found signed_registry_metadata.json – pre‑filling mint metadata:"
     echo "   Name:        $TOKEN_NAME"
     echo "   Ticker:      $TICKER"
     echo "   Description: $DESCRIPTION"
     echo "   Decimals:    $DECIMALS"
     echo "   LogoRef:     $LOGO_REF"
   else
-    echo "⚠️  registry.json not found – falling back to manual entry."
+    echo "⚠️  signed_registry_metadata.json not found – falling back to manual entry."
     read -rp "Enter asset name: " TOKEN_NAME
     read -rp "Enter ticker: " TICKER
     read -rp "Enter description: " DESCRIPTION
