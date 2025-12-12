@@ -45,7 +45,7 @@ AdaData is a self-contained Docker environment for generating and signing Cardan
 🙏 
 If AdaData saves you time, reduces errors, or helps you earn with Cardano—please consider a small ADA contribution!
 
-I’ve spent hours (and days!) building, testing, and validating this project so you can achieve secure, end-to-end results in minutes.
+I’ve many hours (and days!) building, testing, and validating this project so you can achieve secure, end-to-end results in minutes.
 
 Every little bit helps and motivates continued development.
 Thank you for your support!
@@ -75,15 +75,16 @@ By using this tool, you acknowledge that you understand the risks involved.
 
 | 🚀 Feature | Description |
 |-----------|-------------|
-| **Reproducible, air-gapped key and policy generation** | Secure creation of wallet and minting keys in an isolated environment. |
-| **Metadata + registry file creation** | Automatic CIP-68 and registry-compatible metadata generation. |
-| **Built-in validation + checksum verification** | Deterministic hashes for all artifacts. |
-| **Optional Base64 logo embedding** | Properly encoded on-chain or registry logos. |
-| **Deterministic Docker environment** | Version-pinned, fully reproducible builds. |
-| **Offline signing + minting workflow** | End-to-end air-gapped token issuance support. |
-
-
-
+| **Interactive Launcher** | User-friendly menu for generating, minting, burning, and validating token data. |
+| **Reproducible, Air-Gapped Key and Policy Generation** | Secure creation of wallet and minting keys in an isolated environment. |
+| **Metadata and Registry File Creation** | Automatic CIP-68 and registry-compatible metadata generation with options for fungible and NFT tokens. |
+| **Built-in Validation and Checksum Verification** | Deterministic hashes for all artifacts, ensuring integrity and reproducibility. |
+| **Optional Base64 Logo Embedding** | Supports both embedded base64 logos and remote logo URLs for on-chain or registry logos. |
+| **Deterministic Docker Environment** | Version-pinned, fully reproducible builds to ensure consistency and security. |
+| **Offline Signing and Minting Workflow** | End-to-end air-gapped token issuance support, including offline transaction signing and submission. |
+| **Network Configuration** | Flexible network setup supporting both mainnet and testnet environments. |
+| **Wallet and UTxO Management** | Automated wallet balance checks and UTxO selection for streamlined transaction processing. |
+| **Comprehensive Metadata Management** | Supports detailed metadata parsing and generation from registry files. |
 
 ## Platform Compatibility
 
@@ -150,47 +151,74 @@ cardano_policy/
 ```
 
 ```bash
-adadata
+username@username-ms1111:~/adadata$ tree
+.
 ├── cardano_policy
-│   ├── asset_id.txt
-│   ├── asset_name_hex.txt
-│   ├── asset_name.txt
-│   ├── description.txt
-│   ├── display_name.txt
-│   ├── f95b428bb898986d4e96d7c3156234789ee18744572155f11b087c8e5353415241.json
-│   ├── keys
-│   │   ├── payment.addr
-│   │   ├── payment.prv
-│   │   ├── payment.pub
-│   │   ├── payment.skey
-│   │   ├── payment.vkey
-│   │   ├── policy.id
-│   │   ├── policy.skey
-│   │   ├── policy.vkey
-│   │   ├── root.prv
-│   │   └── wallet.mnemonic
-│   ├── logo_base64.txt
-│   ├── metadata.json
-│   ├── scripts
-│   │   └── policy.script
-│   ├── signed_registry_metadata.json
-│   └── url.txt
+│   ├── asset_id.txt
+│   ├── asset_name_hex.txt
+│   ├── asset_name.txt
+│   ├── b8b4cf5ab56216a90e4b65c510e1e33a5d1e6fc567ba80ff0e99fc5453494d53.json
+│   ├── description.txt
+│   ├── display_name.txt
+│   ├── keys
+│   │   ├── payment.addr
+│   │   ├── payment.prv
+│   │   ├── payment.pub
+│   │   ├── payment.skey
+│   │   ├── payment.vkey
+│   │   ├── policy.id
+│   │   ├── policy.skey
+│   │   ├── policy.vkey
+│   │   ├── root.prv
+│   │   └── wallet.mnemonic
+│   ├── logo_base64.txt
+│   ├── logo_path.txt
+│   ├── metadata.json
+│   ├── registry.json
+│   ├── scripts
+│   │   └── policy.script
+│   ├── signed_registry_metadata.json
+│   └── url.txt
+├── db_backup
 ├── default_logo.png
 ├── Dockerfile
+├── Dockerfile.clean
+├── docs
+│   └── Abstract.md
 ├── entrypoint.sh
+├── img
+│   ├── generate.png
+│   ├── mainmenu.png
+│   ├── minting.png
+│   ├── mnemonic.png
+│   ├── sig.png
+│   ├── SSARA.png
+│   └── validate.png
 ├── LICENSE
 ├── NOTICE
 ├── README.md
 ├── run
-│   ├── generate.sh
-│   ├── launch.sh
-│   ├── mint.sh
-│   ├── validate_keys.sh
-│   └── validate_mint.sh
-├── tmp
-└── tx
+│   ├── ada_env.sh
+│   ├── generate.sh
+│   ├── inspect_tx.sh
+│   ├── launch.sh
+│   ├── mint_airgap.sh
+│   ├── mint_meta_generator.sh
+│   ├── mint_online.sh
+│   ├── mint.sh
+│   ├── pre_int.sh
+│   ├── preview_mint_summary.sh
+│   ├── setup_node.sh
+│   ├── sign_and_submit.sh
+│   ├── validate_keys.sh
+│   └── validate_mint.sh
+├── tx
+│   ├── build.log
+│   ├── mint.raw
+│   ├── mint.signed
+│   └── tx_input_info.txt
+└── your_logo.png
 
-6 directories, 33 files
 ```
 
 
@@ -248,9 +276,11 @@ cardano_policy/metadata.json Metadata definition
 
 ## 1.  Getting Started
 
-```git clone https://github.com/simsara-org/adadata.git```
+```commandline
+git clone https://github.com/simsara-org/adadata.git
+cd adadata
+```
 
-```cd adadata```
 
 ## 2. Build the image
 
@@ -259,6 +289,20 @@ The docker build step will download necessary binaries, compile the app, and pro
 
 
 ```docker build --no-cache -t adadata .```
+
+
+## 2.5 Ensure your Cardano node is running
+
+AdaData expects a running `cardano-node` and a valid `node.socket`. Primarily for minting and wallet validation
+
+Example (Linux, mainnet):
+```bash 
+sudo cardano-node run
+--topology /home/username/cardano-mainnet/mainnet-topology.json
+--database-path /media/username/Elements/username/db
+--socket-path /media/username/Elements/username/db/node.socket
+--config /home/username/cardano-mainnet/mainnet-config.json
+```
 
 
 ## 3. Run the container
@@ -270,7 +314,7 @@ The docker build step will download necessary binaries, compile the app, and pro
 docker run --rm -it \
   --user "$(id -u):$(id -g)" \
   -v "$PWD":/app \
-  -v /media/pp/Elements/pp/db/node.socket:/tmp/node.socket \
+  -v /media/username/Elements/username/db/node.socket:/tmp/node.socket \
   -e CARDANO_NODE_SOCKET_PATH=/tmp/node.socket \
   adadata
 ```
@@ -279,7 +323,7 @@ or
 docker run --rm -it \
   --user "$(id -u):$(id -g)" \
   -v "$PWD":/app \
-  -v /media/pp/Elements/pp/db/node.socket:/tmp/node.socket \
+  -v /media/username/Elements/username/db/node.socket:/tmp/node.socket \
   -e NETWORK="--mainnet" \
   -e KEYS_DIR=/app/cardano_policy/keys \
   -e TX_DIR=/app/tx \
@@ -290,14 +334,20 @@ docker run --rm -it \
 
 ## 4. (Optional) Customize the Logo
 
-Personalize your workflow by replacing the default logo:
+Personalize your workflow by replacing the default logo with either a local PNG file or an external URL:
 
-- **Prepare your logo:**  
-  Create a PNG image named `default_logo.png` sized exactly **256×256 pixels**.
+- **Option 1: Use a Local PNG File**  
+  - **Prepare your logo:**  
+    Create a PNG image named `default_logo.png` sized exactly **256×256 pixels**.
+  - **Replace the default:**  
+    Place your custom `default_logo.png` in the appropriate directory  
+    (typically the project root, or wherever `default_logo.png` resides in the project).
 
-- **Replace the default:**  
-  Place your custom `default_logo.png` in the appropriate directory  
-  (typically the project root, or wherever `default_logo.png` resides in the project).
+- **Option 2: Use an External Logo URL**  
+  - **Specify the URL:**  
+    If you prefer to use an external logo, specify the URL in your configuration. For example, use `https://simsara.com/logo.png`.
+  - **Configuration Example:**  
+    Update your configuration file or environment variable to include the logo URL. Ensure that your application is set up to fetch and display this URL as needed.
 
 - **Restart the app (if running):**  
   Your custom logo will now appear wherever the logo is used.
