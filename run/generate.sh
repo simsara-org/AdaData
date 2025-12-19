@@ -128,7 +128,7 @@ generate_policy_id() {
 
 # Prompt for asset name & compute hex and full asset id
 prompt_asset_name() {
-    echo -n "Enter your asset name (ASCII, e.g., SSARA): "
+    echo -n "Enter your asset name (ASCII, e.g., DEMO): "
     read ASSET_NAME
     ASSET_NAME=$(echo "$ASSET_NAME" | tr -d '[:space:]')
     ASSET_NAME_HEX=$(echo -n "$ASSET_NAME" | xxd -p | tr -d '\n')
@@ -144,7 +144,7 @@ prompt_asset_name() {
 # Prompt for metadata (display name, description, url, logo)
 prompt_metadata() {
     # Display Name
-    echo -n "Enter display name (human readable, e.g., CardanoToken): "
+    echo -n "Enter display name (human readable, e.g., Demo Token): "
     read -r DISPLAY_NAME
     echo "$DISPLAY_NAME" > display_name.txt
 
@@ -203,8 +203,10 @@ prompt_metadata() {
                         encode_base64_nowrap "$DEFAULT_LOGO"
                         echo "$DEFAULT_LOGO" > logo_path.txt
                         echo "Logo path recorded to logo_path.txt"
-                    else
+                     else
                         echo "No default logo available; skipping."
+                        # Avoid reusing an old logo_path.txt from a previous run
+                        rm -f logo_path.txt logo_base64.txt
                     fi
                     break
                 elif [ -f "$USER_LOGO" ]; then
@@ -220,6 +222,10 @@ prompt_metadata() {
                 ;;
             N)
                 echo "Skipping logo."
+                # Record explicit "no logo" choice for later steps (registry signing)
+                echo -n "NO_LOGO" > logo_path.txt
+                # Ensure we don't accidentally reuse a prior run's base64
+                rm -f logo_base64.txt
                 break
                 ;;
             *)
@@ -412,40 +418,70 @@ sign_token_metadata_json() {
                 --policy "$POLICY_SCRIPT" \
                 --url "$URL"
 
-            if [ -f logo_base64.txt ]; then
-                   DEFAULT_LOGO_PATH=$(cat logo_base64.txt)
-               elif [ -f logo_path.txt ]; then
-                   DEFAULT_LOGO_PATH=$(cat logo_path.txt)
-               elif [ -n "$LOGO_PATH" ]; then
-                   DEFAULT_LOGO_PATH="$LOGO_PATH"
-               else
-                   DEFAULT_LOGO_PATH=""
-               fi
+                        # Decide registry logo behavior based on earlier step
+            DEFAULT_LOGO_PATH=""
 
-
-            echo "🖼  Logo detected."
-            [ -n "$DEFAULT_LOGO_PATH" ] && echo "Found recorded logo path: $DEFAULT_LOGO_PATH"
-
-            while true; do
-                read -p "Please provide path to your logo PNG file for registry [Press Enter = use default]: " LOGO_PNG
-                LOGO_PNG="${LOGO_PNG:-$DEFAULT_LOGO_PATH}"
-
-                if [ -z "$LOGO_PNG" ]; then
-                    echo "No default logo path recorded; need a valid file path."
-                    continue
+            if [ -f logo_path.txt ]; then
+                RECORDED_LOGO_PATH="$(cat logo_path.txt)"
+                if [ "$RECORDED_LOGO_PATH" = "NO_LOGO" ]; then
+                    echo "ℹ️  No logo was selected earlier; registry metadata will be created without a logo."
+                    RECORDED_LOGO_PATH=""
                 fi
+            else
+                RECORDED_LOGO_PATH=""
+            fi
 
-                if [ -f "$LOGO_PNG" ]; then
-                    echo "Using logo: $LOGO_PNG"
-                    token-metadata-creator entry "$SUBJECT" --logo "$LOGO_PNG"
-                    break
+            # Priority: recorded path from step 1 -> LOGO_PATH env -> bundled default
+            if [ -n "$RECORDED_LOGO_PATH" ]; then
+                DEFAULT_LOGO_PATH="$RECORDED_LOGO_PATH"
+            elif [ -n "$LOGO_PATH" ] && [ -f "$LOGO_PATH" ]; then
+                DEFAULT_LOGO_PATH="$LOGO_PATH"
+            else
+                BUNDLED_DEFAULT_LOGO="$(dirname "$0")/../default_logo.png"
+                if [ -f "$BUNDLED_DEFAULT_LOGO" ]; then
+                    DEFAULT_LOGO_PATH="$BUNDLED_DEFAULT_LOGO"
+                fi
+            fi
+
+            # If we have a usable default, just use it (no prompt). Otherwise, skip with info.
+            # Optional override prompt:
+            # - If NO_LOGO was selected earlier, DEFAULT_LOGO_PATH will be empty and we won't prompt.
+            # - If we have a candidate logo, user can press Enter to accept or type a new path.
+
+            if [ -n "$DEFAULT_LOGO_PATH" ] && [ -f "$DEFAULT_LOGO_PATH" ]; then
+                echo "🖼  Logo available for registry: $DEFAULT_LOGO_PATH"
+                read -r -p "Press Enter to use it, or type a new PNG path to override (or type N to skip logo): " LOGO_OVERRIDE
+                LOGO_OVERRIDE="${LOGO_OVERRIDE/#\~/$HOME}"
+
+                if [ -z "$LOGO_OVERRIDE" ]; then
+                    # Accept default
+                    token-metadata-creator entry "$SUBJECT" --logo "$DEFAULT_LOGO_PATH"
+                elif [ "$(echo "$LOGO_OVERRIDE" | tr '[:lower:]' '[:upper:]')" = "N" ]; then
+                    echo "Skipping logo for registry metadata."
+                elif [ -f "$LOGO_OVERRIDE" ]; then
+                    echo "Using override logo for registry: $LOGO_OVERRIDE"
+                    token-metadata-creator entry "$SUBJECT" --logo "$LOGO_OVERRIDE"
                 else
-                    echo "File not found: $LOGO_PNG"
-                    echo "Please try again."
+                    echo "⚠️  File not found: $LOGO_OVERRIDE"
+                    echo "Continuing without a logo."
                 fi
-            done
+            else
+                # No candidate logo path—only prompt if the user didn't explicitly choose NO_LOGO
+                # (In that case, earlier code already printed the 'No logo was selected earlier' message.)
+                if [ -f logo_path.txt ] && [ "$(cat logo_path.txt 2>/dev/null)" = "NO_LOGO" ]; then
+                    : # already informed above
+                else
+                    read -r -p "No logo found. Enter a PNG path to add one now (or press Enter to skip): " LOGO_OVERRIDE
+                    LOGO_OVERRIDE="${LOGO_OVERRIDE/#\~/$HOME}"
+                    if [ -n "$LOGO_OVERRIDE" ] && [ -f "$LOGO_OVERRIDE" ]; then
+                        token-metadata-creator entry "$SUBJECT" --logo "$LOGO_OVERRIDE"
+                    else
+                        echo "Continuing without a logo."
+                    fi
+                fi
+            fi
 
-            read -p "Enter ticker (short symbol, or leave blank): " TICKER
+            read -p "Enter ticker (recommended for fungible tokens; e.g., DEMO). Press Enter to skip: " TICKER
             if [ -n "$TICKER" ]; then
                 token-metadata-creator entry "$SUBJECT" --ticker "$TICKER"
             fi

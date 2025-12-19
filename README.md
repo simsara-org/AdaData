@@ -274,13 +274,14 @@ cardano_policy/metadata.json Metadata definition
 
 ---
 
+
+
 ## 1.  Getting Started
 
 ```commandline
 git clone https://github.com/simsara-org/adadata.git
 cd adadata
 ```
-
 
 ## 2. Build the image
 
