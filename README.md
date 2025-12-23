@@ -2,14 +2,13 @@
 [![License](https://img.shields.io/github/license/simsara-org/adadata)](LICENSE)
 # AdaData – Air-Gapped Token Metadata Toolkit <img src="./img/SSARA.png" align="right" width="64"/>    
 
-
 A secure, offline-ready toolkit for creating and managing Cardano token metadata.
 
 AdaData is a self-contained Docker environment for generating and signing Cardano token metadata, designed for fully offline or isolated workflows. We recommend running Docker once to obtain dependencies, then transferring the resulting environment to an air-gapped system for secure use. The offline copy contains everything necessary to generate and sign metadata with zero internet access.
 
 ## Air-Gapped Deep Dive (coming soon)
 _A full walkthrough of cloning, transferring, and operating AdaData on a sealed network. Target publish: Q1 2026._
-
+- 🎥 [Adadata Registry and Mint Example (dockerized)](https://youtu.be/-Qo7JcvqZaA)
 
 ## Table of Contents
 
@@ -145,18 +144,18 @@ AdaData works on all major platforms:
 
 </details>
 
+## Demo Video:
 
-##
+[Watch the 4K demo on YouTube](https://youtu.be/-Qo7JcvqZaA)
 
-[Watch the 4K demo (MP4, ~43MB)](./vids/adadata_run_example.mp4)
 
-##
 
 Outputs are written to:
 
 ```
 cardano_policy/
 ```
+Need a template? Check out the sanitized sample in [docs/cardano_policy_demo_reference_no_keys](docs/cardano_policy_demo_reference_no_keys).
 
 ```bash
 username@username-ms1111:~/adadata$ tree
@@ -227,7 +226,9 @@ username@username-ms1111:~/adadata$ tree
 │   └── tx_input_info.txt
 └── your_logo.png
 
+
 ```
+_Keys stay in your hands—no third parties—so treat them like gold._
 
 
 Back up `cardano_policy/keys/` BEFORE moving or deleting anything.
