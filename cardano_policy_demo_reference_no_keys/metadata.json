@@ -1,0 +1,13 @@
+{
+  "20": {
+    "8e0e3c6180e279d1e065569ac9fafe627a6e98ccf6bcaeea11c2bf7a": {
+      "DEMO": {
+        "name": "Demo Token",
+        "ticker": "DEMO",
+        "description": "This is an example description for the adadata demo project",
+        "decimals": 4,
+        "logo": ""
+      }
+    }
+  }
+}
