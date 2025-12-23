@@ -70,8 +70,8 @@ while true; do
       echo "💫  Minting token..."
       echo
       echo "Select minting mode:"
-      echo "  1) Full mint workflow (mint.sh)"
-      echo "  2) Online build only (mint_online.sh)"
+      echo "  1) Manual/legacy wizard (mint.sh)"
+      echo "  2) Online mint (recommended) (mint_online.sh)"
       echo "  3) Air‑gapped sign only (mint_airgap.sh)"
       echo "  4) Back to main menu"
       echo

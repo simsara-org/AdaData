@@ -6,6 +6,11 @@
 A secure, offline-ready toolkit for creating and managing Cardano token metadata.
 
 AdaData is a self-contained Docker environment for generating and signing Cardano token metadata, designed for fully offline or isolated workflows. We recommend running Docker once to obtain dependencies, then transferring the resulting environment to an air-gapped system for secure use. The offline copy contains everything necessary to generate and sign metadata with zero internet access.
+
+## Air-Gapped Deep Dive (coming soon)
+_A full walkthrough of cloning, transferring, and operating AdaData on a sealed network. Target publish: Q1 2026._
+
+
 ## Table of Contents
 
 - [Support AdaData](#support-adadata)
@@ -13,6 +18,7 @@ AdaData is a self-contained Docker environment for generating and signing Cardan
 - [Features](#features)
 - [Platform Compatibility](#platform-compatibility)
 - [Deterministic Builds](#deterministic-builds)
+- [Air-Gapped Deep Dive](#air-gapped-deep-dive-coming-soon)
 - [Workflow Summary](#workflow-summary)
 - [Main Menu Interface](#main-menu-interface)
 - [Example Terminal Dialogs](#example-terminal-dialogs)
@@ -43,9 +49,7 @@ AdaData is a self-contained Docker environment for generating and signing Cardan
 
 ## Support AdaData
 🙏 
-If AdaData saves you time, reduces errors, or helps you earn with Cardano—please consider a small ADA contribution!
-
-I’ve many hours (and days!) building, testing, and validating this project so you can achieve secure, end-to-end results in minutes.
+AdaData is a one-person labor of love—weeks of late nights so you can mint in minutes. If it saves you time or earns you ADA, a tip (code, docs, or ADA) keeps the lights on and development rolling
 
 Every little bit helps and motivates continued development.
 Thank you for your support!
@@ -139,8 +143,12 @@ AdaData works on all major platforms:
 [<img src="./img/validate.png" width="300"/>](./img/validate.png)
 [<img src="./img/minting.png" width="300"/>](./img/minting.png)
 
-
 </details>
+
+
+##
+
+[Watch the 4K demo (MP4, ~43MB)](./vids/adadata_run_example.mp4)
 
 ##
 
@@ -292,17 +300,25 @@ The docker build step will download necessary binaries, compile the app, and pro
 ```docker build --no-cache -t adadata .```
 
 
-## 2.5 Ensure your Cardano node is running
+## 2.5 Cardano node (only required for on-chain actions)
 
-AdaData expects a running `cardano-node` and a valid `node.socket`. Primarily for minting and wallet validation
+You can use AdaData **offline** to generate keys/policies and create/validate metadata (e.g. Menu Option 1) **without** running a node.
+
+You only need a running, **fully synced** `cardano-node` + `node.socket` for on-chain actions such as wallet/UTxO validation, mint/burn transaction builds, or submissions.
 
 Example (Linux, mainnet):
+
+> ⚠️ **Windows/WSL heads-up:** keep the live `node.socket` on the Linux filesystem (e.g. `/tmp` or `/run/user/$UID`). NTFS/ExFAT mounts cannot host Unix domain sockets. It’s perfectly fine to keep the blockchain database on NTFS/ExFAT; just ensure `--socket-path` points to a native Linux path. If you already have a `node.socket` directory on the external drive, rename it (for example: `mv /media/.../node.socket /media/.../node.socket.stale`) before restarting the node.
+
+
 ```bash 
-sudo cardano-node run
---topology /home/username/cardano-mainnet/mainnet-topology.json
---database-path /media/username/Elements/username/db
---socket-path /media/username/Elements/username/db/node.socket
---config /home/username/cardano-mainnet/mainnet-config.json
+export CARDANO_NODE_SOCKET_PATH=/tmp/cardano-node-mainnet.socket
+
+sudo cardano-node run \
+  --topology /home/username/cardano-mainnet/mainnet-topology.json \
+  --database-path /media/username/Elements/username/db \
+  --socket-path /tmp/cardano-node-mainnet.socket \
+  --config /home/username/cardano-mainnet/mainnet-config.json
 ```
 
 
@@ -311,11 +327,20 @@ sudo cardano-node run
 **Recommended (runs as your user):**
 
 
+**Offline-only (no node/socket; for key/policy/metadata generation):**
 ```commandline
 docker run --rm -it \
   --user "$(id -u):$(id -g)" \
   -v "$PWD":/app \
-  -v /media/username/Elements/username/db/node.socket:/tmp/node.socket \
+  adadata
+```
+**With node socket (required for on-chain actions like UTxO checks + mint/burn):**
+
+```commandline
+docker run --rm -it \
+  --user "$(id -u):$(id -g)" \
+  -v "$PWD":/app \
+  -v /tmp/cardano-node-mainnet.socket:/tmp/node.socket \
   -e CARDANO_NODE_SOCKET_PATH=/tmp/node.socket \
   adadata
 ```
@@ -324,13 +349,27 @@ or
 docker run --rm -it \
   --user "$(id -u):$(id -g)" \
   -v "$PWD":/app \
-  -v /media/username/Elements/username/db/node.socket:/tmp/node.socket \
-  -e NETWORK="--mainnet" \
+  -v /tmp/cardano-node-mainnet.socket:/tmp/node.socket \
   -e KEYS_DIR=/app/cardano_policy/keys \
   -e TX_DIR=/app/tx \
   -e PAYMENT_ADDR="$(cat cardano_policy/keys/payment.addr)" \
   -e CARDANO_NODE_SOCKET_PATH=/tmp/node.socket \
   adadata
+```
+
+### Ensure /tmp/cardano-node-mainnet.socket points to your live cardano-node socket (refresh the symlink if you restart the node).
+
+
+
+After (re)starting the node, refresh the helper symlink so CLI tooling keeps following the live socket:
+```bash
+sudo ln -sf /media/username/cardano-mainnet/db/node.socket /tmp/cardano-node-mainnet.socket
+```
+
+Then verify:
+
+```bash 
+ls -l /tmp/cardano-node-mainnet.socket
 ```
 
 ## 4. (Optional) Customize the Logo
