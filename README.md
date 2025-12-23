@@ -1,5 +1,5 @@
 [![Docker](https://img.shields.io/badge/Docker-ready-blue)](https://www.docker.com/)
-[![License](https://img.shields.io/github/license/simsara-org/adadata)](LICENSE)
+[![License](https://img.shields.io/github/license/simsara-org/AdaData)](LICENSE)
 # AdaData – Air-Gapped Token Metadata Toolkit <img src="./img/SSARA.png" align="right" width="64"/>    
 
 A secure, offline-ready toolkit for creating and managing Cardano token metadata.
@@ -21,9 +21,9 @@ _A full walkthrough of cloning, transferring, and operating AdaData on a sealed 
 - [Workflow Summary](#workflow-summary)
 - [Main Menu Interface](#main-menu-interface)
 - [Example Terminal Dialogs](#example-terminal-dialogs)
-- [Outputs Directory Structure](#outputs-are-written-to)
+- [Outputs Directory Structure](#outputs-directory-structure)
 - [Dependencies (verified versions)](#dependencies-verified-versions)
-- [Alternative (No Docker)](#alternative-no-docker)
+- [Alternative (No Docker)](#alternative-cli-no-docker)
 - [Directory Layout](#directory-layout)
 - [Security Notes](#security-notes)
 - [Getting Started](#1-getting-started)
@@ -125,7 +125,7 @@ AdaData works on all major platforms:
 
 [<img src="./img/mainmenu.png" width="500"/>](./img/mainmenu.png)
 
-## Example Terminal Menus
+## Example Terminal Dialogs
 
 
 ### Preview some example AdaData Terminal dialog screens below. 
@@ -150,7 +150,7 @@ AdaData works on all major platforms:
 
 
 
-Outputs are written to:
+## Outputs Directory Structure:
 
 ```
 cardano_policy/
@@ -245,7 +245,7 @@ Back up `cardano_policy/keys/` BEFORE moving or deleting anything.
 
 ---
 
-## Alternative Bash CLI (No Docker)
+## Alternative CLI (No Docker)
 
 ```bash
 ./scripts/generate-policy.sh
@@ -285,7 +285,7 @@ cardano_policy/metadata.json Metadata definition
 
 
 
-## 1.  Getting Started
+## 1. Getting Started
 
 ```commandline
 git clone https://github.com/simsara-org/adadata.git
